@@ -9,7 +9,7 @@ module Validators
       end
 
       def call
-        result = ExternalRegistryClient.lookup(formatted_number.delete(" "))
+        result = ExternalRegistryClient.lookup(formatted_number)
 
         if !result[:success]
           @external_message = result[:error]

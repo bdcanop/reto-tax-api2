@@ -2,6 +2,7 @@ module Validators
   module Format
     class UsEinFormat < BaseValidator
       def call
+        # Eliminamos cualquier carácter que no sea dígito
         digits = raw_number.gsub(/\D/, "")
         @normalized_number = digits
 
@@ -13,7 +14,8 @@ module Validators
       end
 
       def formatted
-        "#{@normalized_number[0..1]}-#{@normalized_number[2..-1]}"
+        # Formateo: NN-NNNNNNN
+        "#{@normalized_number[0, 2]}-#{@normalized_number[2, 7]}"
       end
     end
   end
