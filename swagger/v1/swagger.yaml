@@ -37,7 +37,7 @@ paths:
                   value:
                     valid: false
                     tax_type: gb_vat
-                    formatted_tax_number:
+                    formatted_tax_number: GB 123 4567 6
                     errors:
                     - 'Invalid characters detected: VAT number must contain only numeric
                       digits'
@@ -63,6 +63,27 @@ paths:
                     - Number not active in registry
                     business_registration:
                     external_service_message: Number not active in registry
+                Unable to connect with external service:
+                  value:
+                    valid: false
+                    tax_type: gb_vat
+                    formatted_tax_number: GB 123 4567 86
+                    errors:
+                    - 'Unhandled error: Circuitbox::ServiceFailureError: Service'
+                    business_registration:
+                    external_service_message:
+                Otro ejemplo xd:
+                  value:
+                    summary: Respuesta rara
+                    description: Description of the weird response
+                    value:
+                      valid: false
+                      tax_type: gb_vat
+                      formatted_tax_number: GB 123 4567 86
+                      errors:
+                      - 'Unhandled error: Circuitbox::ServiceFailureError: Service'
+                      business_registration:
+                      external_service_message:
               schema:
                 type: object
                 properties:

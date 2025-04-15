@@ -28,7 +28,10 @@ RSpec.describe 'Tax Validations API', type: :request do
       }
 
       response '200', 'Response scenarios' do
-        # Se define el esquema general de la respuesta
+        # Agregamos un let por defecto para evitar el error de "Missing parameter 'payload'"
+        let(:payload) { { country_code: 'GB', tax_number: '123456786' } }
+
+        # Definimos el esquema general de la respuesta
         schema type: :object,
                properties: {
                  valid: { type: :boolean, example: true },
@@ -57,11 +60,11 @@ RSpec.describe 'Tax Validations API', type: :request do
           external_service_message: nil
         }
 
-        # Ejemplo de fallo de validación por formato
+        # Ejemplo de fallo por formato incorrecto
         example 'application/json', 'Format validation failure', {
           valid: false,
           tax_type: 'gb_vat',
-          formatted_tax_number: nil,
+          formatted_tax_number: 'GB 123 4567 6',
           errors: [
             "Invalid characters detected: VAT number must contain only numeric digits",
             "Incorrect length: expected 9 digits but found 8"
@@ -70,7 +73,7 @@ RSpec.describe 'Tax Validations API', type: :request do
           external_service_message: nil
         }
 
-        # Ejemplo de fallo de validación por checksum
+        # Ejemplo de fallo por checksum inválido
         example 'application/json', 'Checksum validation failure', {
           valid: false,
           tax_type: 'gb_vat',
@@ -80,7 +83,7 @@ RSpec.describe 'Tax Validations API', type: :request do
           external_service_message: nil
         }
 
-        # Ejemplo de fallo de validación externa (número inactivo)
+        # Ejemplo de fallo por validación externa (número inactivo)
         example 'application/json', 'External validation failure', {
           valid: false,
           tax_type: 'gb_vat',
@@ -88,6 +91,15 @@ RSpec.describe 'Tax Validations API', type: :request do
           errors: [ "Number not active in registry" ],
           business_registration: nil,
           external_service_message: "Number not active in registry"
+        }
+
+        example 'application/json', 'Unable to connect with external service', {
+          valid: false,
+          tax_type: 'gb_vat',
+          formatted_tax_number: 'GB 123 4567 86',
+          errors: [ "Unhandled error: Circuitbox::ServiceFailureError: Service" ],
+          business_registration: nil,
+          external_service_message: nil
         }
 
         run_test!
