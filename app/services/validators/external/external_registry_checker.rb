@@ -9,7 +9,22 @@ module Validators
       end
 
       def call
+        start = Time.now
         result = ExternalRegistryClient.lookup(formatted_number)
+
+        duration = Time.now - start
+
+        payload = {
+          number: formatted_number,
+          duration: duration,
+          status: if result[:success]
+                    result[:active] ? "success" : "inactive"
+                  else
+                    "error"
+                  end
+        }
+
+        ActiveSupport::Notifications.instrument("external_registry.validate", payload)
 
         if !result[:success]
           @external_message = result[:error]
