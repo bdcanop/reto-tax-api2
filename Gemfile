@@ -63,4 +63,5 @@ end
 
 group :test do
   gem "webmock"
+  gem "simplecov"
 end
