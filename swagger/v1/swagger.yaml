@@ -1,0 +1,121 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/v1/tax_validations/validate":
+    post:
+      summary: Validates a tax registration number
+      tags:
+      - Tax Validations
+      description: |
+        Realiza la validación completa de un número fiscal, aplicando validaciones de formato, checksum y verificación externa.
+        Dependiendo del `tax_number` enviado, la respuesta varía:
+        - Si falla el formato: se devuelve valid: false y se incluye la explicación del error de formato.
+        - Si pasa el formato pero falla el checksum: se devuelve valid: false y se indica el error del checksum.
+        - Si pasa formato y checksum, pero la validación externa falla (por ejemplo, el número no está activo o no se encontró): se devuelve valid: false junto al mensaje de error.
+        - Si todo es correcto, se devuelve valid: true junto con el número formateado y, opcionalmente, la información de la empresa.
+      parameters: []
+      responses:
+        '200':
+          description: Response scenarios
+          content:
+            application/json:
+              examples:
+                Valid tax number:
+                  value:
+                    valid: true
+                    tax_type: gb_vat
+                    formatted_tax_number: GB 123 4567 86
+                    errors: []
+                    business_registration:
+                      name: Test LTD
+                      address: 1 Test St
+                    external_service_message:
+                Format validation failure:
+                  value:
+                    valid: false
+                    tax_type: gb_vat
+                    formatted_tax_number:
+                    errors:
+                    - 'Invalid characters detected: VAT number must contain only numeric
+                      digits'
+                    - 'Incorrect length: expected 9 digits but found 8'
+                    business_registration:
+                    external_service_message:
+                Checksum validation failure:
+                  value:
+                    valid: false
+                    tax_type: gb_vat
+                    formatted_tax_number: GB 123 4567 86
+                    errors:
+                    - 'Checksum validation failed: expected check digit 6 but found
+                      0'
+                    business_registration:
+                    external_service_message:
+                External validation failure:
+                  value:
+                    valid: false
+                    tax_type: gb_vat
+                    formatted_tax_number: GB 123 4567 86
+                    errors:
+                    - Number not active in registry
+                    business_registration:
+                    external_service_message: Number not active in registry
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+                  tax_type:
+                    type: string
+                    example: gb_vat
+                  formatted_tax_number:
+                    type: string
+                    example: GB 123 4567 86
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  business_registration:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Test LTD
+                      address:
+                        type: string
+                        example: 1 Test St
+                    nullable: true
+                  external_service_message:
+                    type: string
+                    nullable: true
+                required:
+                - valid
+                - tax_type
+                - formatted_tax_number
+                - errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_code:
+                  type: string
+                  example: GB
+                  description: 'Código ISO del país: US, GB o DE'
+                tax_number:
+                  type: string
+                  example: '123456786'
+                  description: Número fiscal sin formato (se normaliza en la respuesta)
+              required:
+              - country_code
+              - tax_number
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
