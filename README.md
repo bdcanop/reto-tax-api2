@@ -56,17 +56,17 @@ Una API para validar números de registro fiscal de diferentes jurisdicciones (U
     ```bash
     git clone https://github.com/bdcanop/reto-tax-api2.git
     ```
+    
+2. Dirígete a la carpeta del proyecto:
 
-2. Instala las dependencias:
+   ```bash
+   cd reto-tax-api2
+   ```
+   
+3. Instala las dependencias:
 
     ```bash
     bundle install
-    ```
-
-3. Clona el mock:
-
-    ```bash
-    git clone https://github.com/bdcanop/mock_tax_registry.git
     ```
 
 ---
@@ -153,7 +153,7 @@ La documentación Swagger se genera y actualiza automáticamente a partir de los
 
 La API depende de un servicio externo simulado (un mock) que valida el número fiscal. Este servicio se implementa como una aplicación Sinatra.
 
-1. Clona el repositorio del mock:
+1. En una carpeta distinta a la del proyecto principal, clona el repositorio del mock:
   
    ```bash
    git clone https://github.com/bdcanop/mock_tax_registry.git
