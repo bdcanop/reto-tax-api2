@@ -87,4 +87,26 @@ RSpec.describe Validators::PipelineValidator do
       expect(validator.errors).to include("Unsupported country code")
     end
   end
+
+  context 'when checksum validation is disabled by feature flag' do
+    let(:number) { 'GB123456780' } # Número con checksum inválido
+
+    before do
+      Flipper.disable(:enable_checksum_validation)
+      Flipper.disable(:use_external_validation)
+    end
+
+    after do
+      Flipper.enable(:enable_checksum_validation)
+      Flipper.enable(:use_external_validation)
+    end
+
+    it 'skips checksum validation and considers number valid' do
+      validator = described_class.new("GB", number).run
+
+      expect(validator.valid?).to be true
+      expect(validator.errors).to be_empty
+      expect(validator.formatted_tax_number).to eq("GB 123 4567 80")
+    end
+  end
 end

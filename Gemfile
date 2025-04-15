@@ -31,6 +31,9 @@ gem "thruster", require: false
 
 gem "httparty"
 
+gem "flipper"
+gem "flipper-ui"
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 

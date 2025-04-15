@@ -18,25 +18,31 @@ module Validators
 
         @formatted_tax_number = format_result.formatted
 
-        if checksum_validator = checksum_validator_for(@country_code)
+        if Flipper.enabled?(:enable_checksum_validation) && (checksum_validator = checksum_validator_for(@country_code))
           checksum_result = checksum_validator.new(format_result.normalized_number).call
           raise ValidationErrors::ChecksumError, checksum_result.errors.join(", ") unless checksum_result.errors.empty?
+        else
+          Rails.logger.info "Checksum validation skipped due to feature flag"
         end
 
-        external = External::ExternalRegistryChecker.new(@formatted_tax_number).call
+        if Flipper.enabled?(:use_external_validation)
+          external = External::ExternalRegistryChecker.new(@formatted_tax_number).call
 
-        unless external.errors.empty?
-          external.errors.each do |err|
-            if err.include?("not active")
-              raise ValidationErrors::InactiveTaxNumberError
-            else
-              raise ValidationErrors::ExternalServiceError, err
+          unless external.errors.empty?
+            external.errors.each do |err|
+              if err.include?("not active")
+                raise ValidationErrors::InactiveTaxNumberError
+              else
+                raise ValidationErrors::ExternalServiceError, err
+              end
             end
           end
-        end
 
-        @business_data = external.business_data
-        @external_service_message = external.external_message
+          @business_data = external.business_data
+          @external_service_message = external.external_message
+        else
+          Rails.logger.info "External validation skipped due to feature flag"
+        end
 
       rescue ValidationErrors::BaseError => e
         @errors << e.message
